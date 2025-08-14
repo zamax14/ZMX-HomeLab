@@ -1,0 +1,102 @@
+---
+# Homepage configuration
+# See https://fontawesome.com/v5/search for icons options
+
+title: "ZMX HomeLab"
+subtitle: "My Local Stuff"
+logo: "logo.png"
+# icon: "fas fa-skull-crossbones" # Optional icon
+
+header: true
+
+# Optional theme
+theme: default # or dark
+
+# Optional navbar
+# links: [] # Allows for navbar (dark mode, edit, etc.) to be empty
+
+# Services
+# First level array represent a group.
+# Leave only a "items" key if not using group (group name, icon & tagstyle are optional, section separation will not be displayed).
+services:
+  - name: "Gestión y Proxy"
+    icon: "fas fa-server"
+    items:
+      - name: "Nginx Proxy Manager"
+        icon: "fas fa-network-wired"
+        subtitle: "Reverse Proxy & SSL"
+        tag: "proxy"
+        url: "http://<YOUR_IP_ADDRESS>:81"
+        target: "_blank"
+      - name: "Portainer"
+        icon: "fab fa-docker"
+        subtitle: "Docker Management"
+        tag: "docker"
+        url: "http://<YOUR_IP_ADDRESS>:9000"
+        target: "_blank"
+      - name: "Adminer"
+        icon: "fas fa-database"
+        subtitle: "Database Admin"
+        tag: "database"
+        url: "http://<YOUR_IP_ADDRESS>:8081"
+        target: "_blank"
+
+  - name: "Monitoreo y Red"
+    icon: "fas fa-chart-area"
+    items:
+      - name: "NetData"
+        icon: "fas fa-chart-line"
+        subtitle: "System Monitoring"
+        tag: "monitor"
+        url: "http://<YOUR_IP_ADDRESS>:19999"
+        target: "_blank"
+      - name: "Pi-hole"
+        icon: "fas fa-shield-alt"
+        subtitle: "DNS & Ad Blocker"
+        tag: "dns"
+        url: "http://<YOUR_IP_ADDRESS>:8085/admin"
+        target: "_blank"
+
+  - name: "Productividad"
+    icon: "fas fa-tools"
+    items:
+      - name: "Nextcloud"
+        icon: "fas fa-cloud"
+        subtitle: "Cloud Storage"
+        tag: "storage"
+        url: "http://<YOUR_IP_ADDRESS>:8084"
+        target: "_blank"
+      - name: "Wiki.js"
+        icon: "fas fa-book"
+        subtitle: "Documentation"
+        tag: "docs"
+        url: "http://<YOUR_IP_ADDRESS>:3000"
+        target: "_blank"
+      - name: "Vaultwarden"
+        icon: "fas fa-lock"
+        subtitle: "Password Manager"
+        tag: "security"
+        url: "http://<YOUR_IP_ADDRESS>:8083"
+        target: "_blank"
+
+  - name: "Automatización"
+    icon: "fas fa-robot"
+    items:
+      - name: "Home Assistant"
+        icon: "fas fa-home"
+        subtitle: "Home Automation"
+        tag: "automation"
+        url: "http://<YOUR_IP_ADDRESS>:8123"
+        target: "_blank"
+      - name: "n8n"
+        icon: "fas fa-robot"
+        subtitle: "Workflow Automation"
+        tag: "workflow"
+        url: "http://<YOUR_IP_ADDRESS>:5678"
+        target: "_blank"
+      - name: "Jenkins"
+        icon: "fas fa-tools"
+        subtitle: "CI/CD Pipeline"
+        tag: "ci-cd"
+        url: "http://<YOUR_IP_ADDRESS>:8082"
+        target: "_blank"

@@ -1,0 +1,39 @@
+# ==============================================
+# HOMELAB .gitignore
+# ==============================================
+
+# Variables de entorno sensibles
+.env
+
+# Homer configuration
+services/homer/config/config.yml
+
+# Logs
+logs/
+*.log
+
+# Backups
+backups/
+*.backup
+*.sql.gz
+
+# Temporal files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Docker
+.docker/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Certificados SSL
+*.pem
+*.key
+*.crt
+*.p12

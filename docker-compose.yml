@@ -1,0 +1,245 @@
+services:
+  ## =====================
+  ## Nginx Proxy Manager
+  ## =====================
+  npm:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: nginx_proxy_manager
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+      - "81:81"
+      - "8443:443"
+    volumes:
+      - ./services/nginx/data:/data
+      - ./services/nginx/letsencrypt:/etc/letsencrypt
+    networks:
+      - homelab
+
+  ## =====================
+  ## Postgres17
+  ## =====================
+  postgres:
+    image: postgres:17
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_MULTIPLE_DATABASES: ${WIKIJS_DB},${NEXTCLOUD_DB}
+    volumes:
+      - ./services/postgres/data:/var/lib/postgresql/data
+      - ./services/postgres/init:/docker-entrypoint-initdb.d
+    networks:
+      - homelab
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  ## =====================
+  ## Homer
+  ## =====================
+  homer:
+    image: b4bz/homer:latest
+    container_name: homer
+    restart: unless-stopped
+    ports:
+      - "8086:8080"
+    volumes:
+      - ./services/homer/config:/www/assets
+    networks:
+      - homelab
+
+  ## =====================
+  ## Portainer
+  ## =====================
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./services/portainer/data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - homelab
+
+  ## =====================
+  ## Monitor de Recursos (Netdata)
+  ## =====================
+  netdata:
+    image: netdata/netdata
+    container_name: netdata
+    cap_add:
+      - SYS_PTRACE
+    ports:
+      - "19999:19999"
+    volumes:
+      - ./services/netdata/config:/etc/netdata
+      - ./services/netdata/lib:/var/lib/netdata
+      - ./services/netdata/cache:/var/cache/netdata
+    restart: unless-stopped
+    networks:
+      - homelab
+
+  ## =====================
+  ## Pi-hole
+  ## =====================
+  pihole:
+    image: pihole/pihole:latest
+    container_name: pihole
+    ports:
+      - "1053:53/tcp"
+      - "1053:53/udp"
+      - "8085:80"
+    environment:
+      TZ: ${TZ}
+      WEBPASSWORD: ${PIHOLE_PASSWORD}
+    volumes:
+      - ./services/pihole/etc-pihole:/etc/pihole
+      - ./services/pihole/dnsmasq.d:/etc/dnsmasq.d
+    restart: unless-stopped
+    networks:
+      - homelab
+
+  ## =====================
+  ## Home Assistant
+  ## =====================
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    container_name: homeassistant
+    network_mode: host
+    volumes:
+      - ./services/homeassistant/config:/config
+    environment:
+      - TZ=${TZ}
+    restart: unless-stopped
+
+  ## =====================
+  ## n8n
+  ## =====================
+  n8n:
+    image: n8nio/n8n
+    container_name: n8n
+    ports:
+      - "5678:5678"
+    environment:
+      - GENERIC_TIMEZONE=${TZ}
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_SECURE_COOKIE=false
+    volumes:
+      - ./services/n8n/data:/home/node/.n8n
+    restart: unless-stopped
+    networks:
+      - homelab
+
+  ## =====================
+  ## Nextcloud
+  ## =====================
+  nextcloud:
+    image: nextcloud:latest
+    container_name: nextcloud
+    ports:
+      - "8084:80"
+    environment:
+      - POSTGRES_DB=${NEXTCLOUD_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=postgres
+      - NEXTCLOUD_ADMIN_USER=${NEXTCLOUD_ADMIN_USER}
+      - NEXTCLOUD_ADMIN_PASSWORD=${NEXTCLOUD_ADMIN_PASSWORD}
+      - NEXTCLOUD_TRUSTED_DOMAINS=${DOMAIN}
+    volumes:
+      - ./services/nextcloud/data:/var/www/html
+    restart: unless-stopped
+    networks:
+      - homelab
+    depends_on:
+      - postgres
+
+  ## =====================
+  ## Wiki.js
+  ## =====================
+  wikijs:
+    image: requarks/wiki:latest
+    container_name: wikijs
+    ports:
+      - "3000:3000"
+    environment:
+      DB_TYPE: postgres
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${POSTGRES_USER}
+      DB_PASS: ${POSTGRES_PASSWORD}
+      DB_NAME: ${WIKIJS_DB}
+    restart: unless-stopped
+    networks:
+      - homelab
+    depends_on:
+      - postgres
+
+  ## =====================
+  ## Vaultwarden
+  ## =====================
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    ports:
+      - "8083:80"
+    environment:
+      - DOMAIN=${VAULTWARDEN_DOMAIN}
+      - ADMIN_TOKEN=${VAULTWARDEN_ADMIN_TOKEN}
+      - WEBSOCKET_ENABLED=true
+      - SIGNUPS_ALLOWED=true
+      - WEB_VAULT_ENABLED=true
+      - ROCKET_TLS={disabled=true}  # Desactivar TLS para red local
+    volumes:
+      - ./services/vaultwarden/data:/data
+    restart: unless-stopped
+    networks:
+      - homelab
+
+  ## =====================
+  ## Jenkins
+  ## =====================
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    ports:
+      - "8082:8080"
+    environment:
+      - JENKINS_OPTS=${JENKINS_OPTS}
+      - TZ=${TZ}
+    volumes:
+      - ./services/jenkins/home:/var/jenkins_home
+    restart: unless-stopped
+    networks:
+      - homelab
+    user: "1000:1000"  # Ajusta según tu UID:GID
+
+  ## =====================
+  ## Adminer (DB GUI)
+  ## =====================
+  adminer:
+    image: adminer
+    container_name: adminer
+    ports:
+      - "8081:8080"
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    networks:
+      - homelab
+
+## =====================
+## Redes
+## =====================
+networks:
+  homelab:
+    driver: bridge
